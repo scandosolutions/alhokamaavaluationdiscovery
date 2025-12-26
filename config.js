@@ -8,6 +8,14 @@ const CONFIG = {
     API_KEY: 'AIzaSyDzdM8JaUY5S_We3RN8eBdxUPFEBqtz9sA',
     SHEET_NAME: 'التقييمات', // Sheet name in Arabic
     
+    // Google Apps Script Web App URL (MUST BE CONFIGURED)
+    // See DEPLOYMENT.md for instructions on how to set this up
+    APPS_SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE',
+    
+    // Fallback: Use FormSubmit.co (no setup required)
+    USE_FORMSUBMIT: true, // Set to false once Apps Script is configured
+    FORMSUBMIT_EMAIL: 'info@alhokamaa.com', // Email to receive submissions
+    
     // Google Drive Configuration (for file uploads)
     DRIVE_FOLDER_ID: '', // Will be created dynamically or specified
     
@@ -54,80 +62,44 @@ const CONFIG = {
     ]
 };
 
-// Helper function to get full API URL for sheets
-function getSheetsUrl(action = 'append') {
-    return `${CONFIG.SHEETS_API_BASE}/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}:${action}?valueInputOption=RAW&key=${CONFIG.API_KEY}`;
+// Helper function to send data to Google Apps Script
+async function sendToAppsScript(data) {
+    if (!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        throw new Error('Google Apps Script URL not configured');
+    }
+    
+    const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Required for Apps Script
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    });
+    
+    return { success: true };
 }
 
-// Helper function to initialize sheet with headers
-async function initializeSheet() {
-    const headerUrl = `${CONFIG.SHEETS_API_BASE}/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}!A1:AH1?key=${CONFIG.API_KEY}`;
+// Helper function to send via FormSubmit (fallback)
+async function sendViaFormSubmit(data) {
+    const formData = new FormData();
     
-    try {
-        // Check if headers exist
-        const response = await fetch(headerUrl);
-        const data = await response.json();
-        
-        if (!data.values || data.values.length === 0) {
-            // Create headers in Arabic
-            const headers = [
-                'التاريخ والوقت',
-                'اسم الشركة',
-                'نوع النشاط',
-                'تاريخ التأسيس',
-                'العنوان الرئيسي',
-                'السجل التجاري (نعم/لا)',
-                'البطاقة الضريبية (نعم/لا)',
-                'عقود الاستثمار (نعم/لا)',
-                'التراخيص التشغيلية (نعم/لا)',
-                'رابط السجل التجاري',
-                'رابط البطاقة الضريبية',
-                'رابط عقود الاستثمار',
-                'رابط التراخيص',
-                'هيكل تنظيمي معتمد',
-                'رابط الهيكل التنظيمي',
-                'أصحاب الصلاحيات',
-                'اتخاذ القرارات الاستراتيجية',
-                'النظام المحاسبي',
-                'نظام محاسبي آخر',
-                'ميزانيات مدققة',
-                'الدورة المستندية',
-                'السيولة المالية',
-                'سلسلة التوريد',
-                'أدلة السياسات SOPs',
-                'التحديات التشغيلية',
-                'البرامج والتقنيات',
-                'حماية البيانات',
-                'البنية التحتية',
-                'عدد الموظفين الدائمين',
-                'عدد الموظفين المؤقتين',
-                'اللائحة الداخلية',
-                'تقييم الأداء وسلم الرواتب',
-                'نسبة دوران العمالة',
-                'ملاحظات إضافية'
-            ];
-            
-            // Append headers
-            const appendUrl = `${CONFIG.SHEETS_API_BASE}/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}:append?valueInputOption=RAW&key=${CONFIG.API_KEY}`;
-            
-            await fetch(appendUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    values: [headers]
-                })
-            });
-            
-            console.log('Sheet headers initialized successfully');
+    // Add all data as form fields
+    Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+            formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
         }
-    } catch (error) {
-        console.error('Error initializing sheet:', error);
-    }
+    });
+    
+    const response = await fetch(`https://formsubmit.co/${CONFIG.FORMSUBMIT_EMAIL}`, {
+        method: 'POST',
+        body: formData
+    });
+    
+    return response;
 }
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { CONFIG, getSheetsUrl, initializeSheet };
+    module.exports = { CONFIG, sendToAppsScript, sendViaFormSubmit };
 }

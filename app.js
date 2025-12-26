@@ -8,11 +8,34 @@ let uploadedFiles = {};
 
 // ========== Initialization ==========
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSheet(); // Initialize Google Sheet headers if needed
     setupEventListeners();
     updateProgress();
     handleConditionalFields();
+    checkConfiguration();
 });
+
+// Check if configuration is set up
+function checkConfiguration() {
+    const banner = document.getElementById('infoBanner');
+    const bannerText = document.getElementById('bannerText');
+    
+    if (CONFIG.USE_FORMSUBMIT) {
+        console.log('✅ Using FormSubmit.co as backend (no setup required)');
+        console.log('📧 Submissions will be sent to:', CONFIG.FORMSUBMIT_EMAIL);
+        bannerText.textContent = 'النظام جاهز! البيانات ستُرسل إلى البريد الإلكتروني: ' + CONFIG.FORMSUBMIT_EMAIL;
+        banner.style.display = 'block';
+    } else if (CONFIG.APPS_SCRIPT_URL && CONFIG.APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        console.log('✅ Using Google Apps Script as backend');
+        bannerText.textContent = 'متصل بـ Google Sheets مباشرة';
+        banner.style.display = 'block';
+    } else {
+        console.warn('⚠️ No backend configured! Please set up Google Apps Script or enable FormSubmit in config.js');
+        bannerText.textContent = '⚠️ لم يتم إعداد النظام بعد. راجع GOOGLE_APPS_SCRIPT_SETUP.md';
+        banner.style.background = '#FFF9E6';
+        banner.style.borderColor = '#ffc107';
+        banner.style.display = 'block';
+    }
+}
 
 // ========== Event Listeners Setup ==========
 function setupEventListeners() {
@@ -249,65 +272,69 @@ function collectFormData(fileUrls) {
     const form = document.getElementById('evaluationForm');
     const formData = new FormData(form);
     
-    // Create data array matching column order
-    const data = [
-        new Date().toLocaleString('ar-EG'), // timestamp
-        formData.get('companyName'),
-        formData.get('businessType'),
-        formData.get('establishmentDate'),
-        formData.get('mainAddress'),
-        formData.get('doc1') ? 'نعم' : 'لا',
-        formData.get('doc2') ? 'نعم' : 'لا',
-        formData.get('doc3') ? 'نعم' : 'لا',
-        formData.get('doc4') ? 'نعم' : 'لا',
-        fileUrls.file1 || '',
-        fileUrls.file2 || '',
-        fileUrls.file3 || '',
-        fileUrls.file4 || '',
-        formData.get('orgChart'),
-        fileUrls.file5 || '',
-        formData.get('authorities'),
-        formData.get('decisionMaking'),
-        formData.get('accountingSystem'),
-        formData.get('accountingSystemOther') || '',
-        formData.get('auditedBudgets'),
-        formData.get('documentCycle'),
-        formData.get('liquidity'),
-        formData.get('supplyChain'),
-        formData.get('sops'),
-        formData.get('operationalChallenges'),
-        formData.get('itSystems'),
-        formData.get('dataProtection'),
-        formData.get('infrastructure'),
-        formData.get('permanentEmployees'),
-        formData.get('temporaryEmployees'),
-        formData.get('internalRegulations'),
-        formData.get('performanceEvaluation'),
-        formData.get('turnoverRate'),
-        formData.get('additionalNotes') || ''
-    ];
+    // Create data object with descriptive keys
+    const data = {
+        '_subject': 'استبيان تقييم شركة جديد - ' + formData.get('companyName'),
+        'timestamp': new Date().toLocaleString('ar-EG'),
+        'companyName': formData.get('companyName'),
+        'businessType': formData.get('businessType'),
+        'establishmentDate': formData.get('establishmentDate'),
+        'mainAddress': formData.get('mainAddress'),
+        'doc1': formData.get('doc1') ? 'نعم' : 'لا',
+        'doc2': formData.get('doc2') ? 'نعم' : 'لا',
+        'doc3': formData.get('doc3') ? 'نعم' : 'لا',
+        'doc4': formData.get('doc4') ? 'نعم' : 'لا',
+        'file1_url': fileUrls.file1 || '',
+        'file2_url': fileUrls.file2 || '',
+        'file3_url': fileUrls.file3 || '',
+        'file4_url': fileUrls.file4 || '',
+        'orgChart': formData.get('orgChart'),
+        'file5_url': fileUrls.file5 || '',
+        'authorities': formData.get('authorities'),
+        'decisionMaking': formData.get('decisionMaking'),
+        'accountingSystem': formData.get('accountingSystem'),
+        'accountingSystemOther': formData.get('accountingSystemOther') || '',
+        'auditedBudgets': formData.get('auditedBudgets'),
+        'documentCycle': formData.get('documentCycle'),
+        'liquidity': formData.get('liquidity'),
+        'supplyChain': formData.get('supplyChain'),
+        'sops': formData.get('sops'),
+        'operationalChallenges': formData.get('operationalChallenges'),
+        'itSystems': formData.get('itSystems'),
+        'dataProtection': formData.get('dataProtection'),
+        'infrastructure': formData.get('infrastructure'),
+        'permanentEmployees': formData.get('permanentEmployees'),
+        'temporaryEmployees': formData.get('temporaryEmployees'),
+        'internalRegulations': formData.get('internalRegulations'),
+        'performanceEvaluation': formData.get('performanceEvaluation'),
+        'turnoverRate': formData.get('turnoverRate'),
+        'additionalNotes': formData.get('additionalNotes') || ''
+    };
     
     return data;
 }
 
-async function sendToGoogleSheets(data) {
-    const url = getSheetsUrl('append');
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            values: [data]
-        })
-    });
-    
-    if (!response.ok) {
-        throw new Error('Failed to send data to Google Sheets');
+async function sendToGoogleSheets(formDataObject) {
+    // Try Google Apps Script first (if configured)
+    if (!CONFIG.USE_FORMSUBMIT && CONFIG.APPS_SCRIPT_URL && CONFIG.APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        try {
+            await sendToAppsScript(formDataObject);
+            return { success: true, method: 'apps-script' };
+        } catch (error) {
+            console.error('Apps Script failed, falling back to FormSubmit:', error);
+        }
     }
     
-    return await response.json();
+    // Use FormSubmit as fallback or primary method
+    if (CONFIG.USE_FORMSUBMIT) {
+        const response = await sendViaFormSubmit(formDataObject);
+        if (response.ok || response.status === 0) { // status 0 is ok for form redirects
+            return { success: true, method: 'formsubmit' };
+        }
+        throw new Error('Failed to send data via FormSubmit');
+    }
+    
+    throw new Error('No backend service configured');
 }
 
 // ========== File Upload to Google Drive ==========
