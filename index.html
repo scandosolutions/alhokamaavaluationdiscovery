@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استبيان تقييم الشركة - مكتب الحكماء</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/wF7rLbkG/icon-alhokamaa-transparent-background.png">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="https://i.ibb.co/XG73DWy/logo-alhokamaa-transparent-light-background.png" 
+                     alt="مكتب الحكماء" 
+                     class="logo">
+            </div>
+            <div class="header-content">
+                <h1>استبيان استكشافي لتحليل وتقييم الوضع الراهن للشركة</h1>
+                <p class="subtitle">يهدف هذا الاستبيان إلى جمع المعلومات الأساسية لفهم الوضع الحالي للشركة من النواحي القانونية، المالية، التشغيلية، والإدارية.</p>
+            </div>
+        </header>
+
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">البيانات الأساسية</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">الهيكل التنظيمي</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">القطاع المالي</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">العمليات الداخلية</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">النظم والمعلومات</div>
+                </div>
+                <div class="step" data-step="6">
+                    <div class="step-circle">6</div>
+                    <div class="step-label">الموارد البشرية</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <form id="evaluationForm">
+                
+                <!-- Section 1: البيانات الأساسية والوضع القانوني -->
+                <div class="form-section active" data-section="1">
+                    <div class="section-header">
+                        <h2>أولاً: البيانات الأساسية والوضع القانوني</h2>
+                        <p class="section-subtitle">الهدف: توثيق الكيان قانونياً ورسمياً</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="companyName">1. اسم الشركة الكامل: <span class="required">*</span></label>
+                        <input type="text" id="companyName" name="companyName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="businessType">2. نوع النشاط التجاري / الصناعي: <span class="required">*</span></label>
+                        <input type="text" id="businessType" name="businessType" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="establishmentDate">3. تاريخ التأسيس: <span class="required">*</span></label>
+                        <input type="date" id="establishmentDate" name="establishmentDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mainAddress">4. العنوان الرئيسي والفروع (إن وجدت): <span class="required">*</span></label>
+                        <textarea id="mainAddress" name="mainAddress" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>5. المستندات المطلوبة (يرجى إرفاق نسخة ضوئية):</label>
+                        
+                        <div class="file-upload-group">
+                            <div class="checkbox-file">
+                                <input type="checkbox" id="doc1" name="doc1">
+                                <label for="doc1">السجل التجاري (ساري المفعول)</label>
+                            </div>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="file1" name="file1" accept=".pdf,.jpg,.jpeg,.png">
+                                <label for="file1" class="file-label">
+                                    <span class="file-icon">📎</span>
+                                    <span class="file-text">اختر ملف</span>
+                                </label>
+                                <span class="file-name" id="fileName1"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-file">
+                            <input type="checkbox" id="doc2" name="doc2">
+                            <label for="doc2">البطاقة الضريبية</label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="file2" name="file2" accept=".pdf,.jpg,.jpeg,.png">
+                            <label for="file2" class="file-label">
+                                <span class="file-icon">📎</span>
+                                <span class="file-text">اختر ملف</span>
+                            </label>
+                            <span class="file-name" id="fileName2"></span>
+                        </div>
+
+                        <div class="checkbox-file">
+                            <input type="checkbox" id="doc3" name="doc3">
+                            <label for="doc3">عقود الاستثمار واتفاقيات الشركاء</label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="file3" name="file3" accept=".pdf,.jpg,.jpeg,.png">
+                            <label for="file3" class="file-label">
+                                <span class="file-icon">📎</span>
+                                <span class="file-text">اختر ملف</span>
+                            </label>
+                            <span class="file-name" id="fileName3"></span>
+                        </div>
+
+                        <div class="checkbox-file">
+                            <input type="checkbox" id="doc4" name="doc4">
+                            <label for="doc4">التراخيص التشغيلية الخاصة بالنشاط</label>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="file4" name="file4" accept=".pdf,.jpg,.jpeg,.png">
+                            <label for="file4" class="file-label">
+                                <span class="file-icon">📎</span>
+                                <span class="file-text">اختر ملف</span>
+                            </label>
+                            <span class="file-name" id="fileName4"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: الهيكل التنظيمي والإداري -->
+                <div class="form-section" data-section="2">
+                    <div class="section-header">
+                        <h2>ثانياً: الهيكل التنظيمي والإداري</h2>
+                        <p class="section-subtitle">الهدف: فهم كيفية اتخاذ القرار وتدفق الصلاحيات</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="orgChart">1. هل يوجد هيكل تنظيمي (Org Chart) معتمد للشركة؟ <span class="required">*</span></label>
+                        <select id="orgChart" name="orgChart" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="no">لا</option>
+                        </select>
+                        <div class="file-input-wrapper" style="margin-top: 10px;">
+                            <input type="file" id="file5" name="file5" accept=".pdf,.jpg,.jpeg,.png">
+                            <label for="file5" class="file-label">
+                                <span class="file-icon">📎</span>
+                                <span class="file-text">إرفاق الهيكل التنظيمي (إن وجد)</span>
+                            </label>
+                            <span class="file-name" id="fileName5"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authorities">2. من هم أصحاب الصلاحيات التوقيعية والإدارية العليا؟ <span class="required">*</span></label>
+                        <textarea id="authorities" name="authorities" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="decisionMaking">3. كيف يتم اتخاذ القرارات الإستراتيجية داخل الشركة؟ <span class="required">*</span></label>
+                        <textarea id="decisionMaking" name="decisionMaking" rows="4" placeholder="مثال: مجلس إدارة، مدير عام، شركاء؟" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 3: القطاع المالي -->
+                <div class="form-section" data-section="3">
+                    <div class="section-header">
+                        <h2>ثالثاً: القطاع المالي</h2>
+                        <p class="section-subtitle">الهدف: فهم الملاءة المالية ونظام الرقابة</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountingSystem">1. ما هو النظام المحاسبي المستخدم حالياً؟ <span class="required">*</span></label>
+                        <select id="accountingSystem" name="accountingSystem" required>
+                            <option value="">اختر...</option>
+                            <option value="erp">نظام ERP</option>
+                            <option value="excel">Excel</option>
+                            <option value="manual">دفاتر يدوية</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                        <input type="text" id="accountingSystemOther" name="accountingSystemOther" placeholder="يرجى التحديد" style="margin-top: 10px; display: none;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auditedBudgets">2. هل توجد ميزانيات مدققة لآخر 3 سنوات؟ <span class="required">*</span></label>
+                        <select id="auditedBudgets" name="auditedBudgets" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="partial">جزئياً</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="documentCycle">3. كيف يتم التعامل مع الدورة المستندية؟ <span class="required">*</span></label>
+                        <textarea id="documentCycle" name="documentCycle" rows="4" placeholder="مثال: طلب الشراء، الفواتير، الصرف" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="liquidity">4. هل توجد سيولة كافية لتغطية العمليات التشغيلية للمرحلة القادمة؟ <span class="required">*</span></label>
+                        <select id="liquidity" name="liquidity" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="moderate">متوسطة</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 4: العمليات الداخلية -->
+                <div class="form-section" data-section="4">
+                    <div class="section-header">
+                        <h2>رابعاً: قطاع العمليات الداخلية</h2>
+                        <p class="section-subtitle">الهدف: فهم "مطبخ" العمل وكيفية تقديم الخدمة أو المنتج</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supplyChain">1. ما هي سلسلة التوريد الخاصة بكم؟ ومن هم الموردين الأساسيين؟ <span class="required">*</span></label>
+                        <textarea id="supplyChain" name="supplyChain" rows="5" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sops">2. هل توجد أدلة سياسات وإجراءات (SOPs) مكتوبة لكل قسم؟ <span class="required">*</span></label>
+                        <select id="sops" name="sops" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="partial">جزئياً</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operationalChallenges">3. ما هي أكبر التحديات التي تواجهكم في سير العمل اليومي؟ <span class="required">*</span></label>
+                        <textarea id="operationalChallenges" name="operationalChallenges" rows="5" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 5: النظم والمعلومات -->
+                <div class="form-section" data-section="5">
+                    <div class="section-header">
+                        <h2>خامساً: قطاع النظم والمعلومات</h2>
+                        <p class="section-subtitle">الهدف: تقييم البنية التكنولوجية والأمان</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="itSystems">1. ما هي البرامج والتقنيات الأساسية التي تعتمد عليها الشركة في تشغيلها؟ <span class="required">*</span></label>
+                        <textarea id="itSystems" name="itSystems" rows="5" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataProtection">2. هل توجد منظومة لحماية البيانات والنسخ الاحتياطي (Backup)؟ <span class="required">*</span></label>
+                        <select id="dataProtection" name="dataProtection" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="partial">جزئياً</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="infrastructure">3. هل البنية التحتية (أجهزة، سيرفرات، شبكات) تلبي احتياجات النمو الحالية؟ <span class="required">*</span></label>
+                        <select id="infrastructure" name="infrastructure" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="partial">جزئياً</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 6: الموارد البشرية -->
+                <div class="form-section" data-section="6">
+                    <div class="section-header">
+                        <h2>سادساً: الموارد البشرية</h2>
+                        <p class="section-subtitle">الهدف: فهم رأس المال البشري وبيئة العمل</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="employeeCount">1. ما هو إجمالي عدد الموظفين؟ <span class="required">*</span></label>
+                        <div class="input-row">
+                            <div class="input-col">
+                                <label for="permanentEmployees">عمالة دائمة:</label>
+                                <input type="number" id="permanentEmployees" name="permanentEmployees" min="0" required>
+                            </div>
+                            <div class="input-col">
+                                <label for="temporaryEmployees">عمالة مؤقتة:</label>
+                                <input type="number" id="temporaryEmployees" name="temporaryEmployees" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="internalRegulations">2. هل توجد لائحة داخلية معتمدة لتنظيم العمل وشؤون الموظفين؟ <span class="required">*</span></label>
+                        <select id="internalRegulations" name="internalRegulations" required>
+                            <option value="">اختر...</option>
+                            <option value="yes">نعم</option>
+                            <option value="partial">جزئياً</option>
+                            <option value="no">لا</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="performanceEvaluation">3. كيف يتم تقييم أداء الموظفين؟ وهل يوجد سلم رواتب واضح؟ <span class="required">*</span></label>
+                        <textarea id="performanceEvaluation" name="performanceEvaluation" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="turnoverRate">4. ما هي نسبة دوران العمالة (Employee Turnover) خلال العام الأخير؟ <span class="required">*</span></label>
+                        <input type="text" id="turnoverRate" name="turnoverRate" placeholder="مثال: 15%" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalNotes">ملاحظات إضافية:</label>
+                        <textarea id="additionalNotes" name="additionalNotes" rows="5" placeholder="يرجى تزويدنا بأي معلومات أخرى تراها ضرورية لتكوين رؤية شاملة عن وضع الشركة الحالي."></textarea>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">السابق</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">التالي</button>
+                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                        <span class="submit-text">إرسال الاستبيان</span>
+                        <span class="submit-loader" style="display: none;">جاري الإرسال...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage" style="display: none;">
+            <div class="success-icon">✓</div>
+            <h2>تم إرسال الاستبيان بنجاح!</h2>
+            <p>شكراً لكم على إكمال الاستبيان. سيتم مراجعة المعلومات والتواصل معكم قريباً.</p>
+            <button class="btn btn-primary" onclick="location.reload()">تقديم استبيان جديد</button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 مكتب الحكماء. جميع الحقوق محفوظة.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
