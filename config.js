@@ -12,7 +12,7 @@ const CONFIG = {
     APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwDWw1Liu9rZXmufhhH6ab6gMUrqWAAU3HPPxBWAaOw15BNeX84IO38U4zdVICVrA-aJA/exec',
     
     // Fallback: Use FormSubmit.co (no setup required)
-    USE_FORMSUBMIT: false, // Google Apps Script is now configured!
+    USE_FORMSUBMIT: true, // Back to email submissions
     FORMSUBMIT_EMAIL: 'info@alhokamaa.com', // Email to receive submissions
     
     // Google Drive Configuration (for file uploads)
