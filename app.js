@@ -16,13 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Check if configuration is set up
 function checkConfiguration() {
-    const banner = document.getElementById('infoBanner');
-    const bannerText = document.getElementById('bannerText');
-    
     console.log('✅ Email submission system ready');
     console.log('📧 Submissions will be sent to:', CONFIG.FORMSUBMIT_EMAIL);
-    bannerText.textContent = 'النظام جاهز! البيانات والمرفقات ستُرسل إلى البريد الإلكتروني: ' + CONFIG.FORMSUBMIT_EMAIL;
-    banner.style.display = 'block';
 }
 
 // ========== Event Listeners Setup ==========
