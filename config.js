@@ -8,12 +8,11 @@ const CONFIG = {
     API_KEY: 'AIzaSyDzdM8JaUY5S_We3RN8eBdxUPFEBqtz9sA',
     SHEET_NAME: 'التقييمات', // Sheet name in Arabic
     
-    // Google Apps Script Web App URL (MUST BE CONFIGURED)
-    // See DEPLOYMENT.md for instructions on how to set this up
-    APPS_SCRIPT_URL: 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE',
+    // Google Apps Script Web App URL (CONFIGURED)
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwDWw1Liu9rZXmufhhH6ab6gMUrqWAAU3HPPxBWAaOw15BNeX84IO38U4zdVICVrA-aJA/exec',
     
     // Fallback: Use FormSubmit.co (no setup required)
-    USE_FORMSUBMIT: true, // Set to false once Apps Script is configured
+    USE_FORMSUBMIT: false, // Google Apps Script is now configured!
     FORMSUBMIT_EMAIL: 'info@alhokamaa.com', // Email to receive submissions
     
     // Google Drive Configuration (for file uploads)
