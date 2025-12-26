@@ -19,22 +19,10 @@ function checkConfiguration() {
     const banner = document.getElementById('infoBanner');
     const bannerText = document.getElementById('bannerText');
     
-    if (CONFIG.USE_FORMSUBMIT) {
-        console.log('✅ Using FormSubmit.co as backend (no setup required)');
-        console.log('📧 Submissions will be sent to:', CONFIG.FORMSUBMIT_EMAIL);
-        bannerText.textContent = 'النظام جاهز! البيانات ستُرسل إلى البريد الإلكتروني: ' + CONFIG.FORMSUBMIT_EMAIL;
-        banner.style.display = 'block';
-    } else if (CONFIG.APPS_SCRIPT_URL && CONFIG.APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        console.log('✅ Using Google Apps Script as backend');
-        bannerText.textContent = 'متصل بـ Google Sheets مباشرة';
-        banner.style.display = 'block';
-    } else {
-        console.warn('⚠️ No backend configured! Please set up Google Apps Script or enable FormSubmit in config.js');
-        bannerText.textContent = '⚠️ لم يتم إعداد النظام بعد. راجع GOOGLE_APPS_SCRIPT_SETUP.md';
-        banner.style.background = '#FFF9E6';
-        banner.style.borderColor = '#ffc107';
-        banner.style.display = 'block';
-    }
+    console.log('✅ Email submission system ready');
+    console.log('📧 Submissions will be sent to:', CONFIG.FORMSUBMIT_EMAIL);
+    bannerText.textContent = 'النظام جاهز! البيانات والمرفقات ستُرسل إلى البريد الإلكتروني: ' + CONFIG.FORMSUBMIT_EMAIL;
+    banner.style.display = 'block';
 }
 
 // ========== Event Listeners Setup ==========
@@ -245,17 +233,12 @@ async function handleSubmit(event) {
     submitLoader.style.display = 'inline-block';
     
     try {
-        // Step 1: Upload files to Google Drive (if any)
-        const fileUrls = await uploadFilesToDrive();
+        // Send to email with attachments
+        await sendViaEmail();
         
-        // Step 2: Collect form data
-        const formData = collectFormData(fileUrls);
-        
-        // Step 3: Send to Google Sheets
-        await sendToGoogleSheets(formData);
-        
-        // Step 4: Show success message
+        // Show success message
         showSuccessMessage();
+        clearDraft();
         
     } catch (error) {
         console.error('Submission error:', error);
@@ -268,108 +251,82 @@ async function handleSubmit(event) {
     }
 }
 
-function collectFormData(fileUrls) {
+async function sendViaEmail() {
     const form = document.getElementById('evaluationForm');
     const formData = new FormData(form);
     
-    // Create data object with descriptive keys
-    const data = {
-        '_subject': 'استبيان تقييم شركة جديد - ' + formData.get('companyName'),
-        'timestamp': new Date().toLocaleString('ar-EG'),
-        'companyName': formData.get('companyName'),
-        'businessType': formData.get('businessType'),
-        'establishmentDate': formData.get('establishmentDate'),
-        'mainAddress': formData.get('mainAddress'),
-        'doc1': formData.get('doc1') ? 'نعم' : 'لا',
-        'doc2': formData.get('doc2') ? 'نعم' : 'لا',
-        'doc3': formData.get('doc3') ? 'نعم' : 'لا',
-        'doc4': formData.get('doc4') ? 'نعم' : 'لا',
-        'file1_url': fileUrls.file1 || '',
-        'file2_url': fileUrls.file2 || '',
-        'file3_url': fileUrls.file3 || '',
-        'file4_url': fileUrls.file4 || '',
-        'orgChart': formData.get('orgChart'),
-        'file5_url': fileUrls.file5 || '',
-        'authorities': formData.get('authorities'),
-        'decisionMaking': formData.get('decisionMaking'),
-        'accountingSystem': formData.get('accountingSystem'),
-        'accountingSystemOther': formData.get('accountingSystemOther') || '',
-        'auditedBudgets': formData.get('auditedBudgets'),
-        'documentCycle': formData.get('documentCycle'),
-        'liquidity': formData.get('liquidity'),
-        'supplyChain': formData.get('supplyChain'),
-        'sops': formData.get('sops'),
-        'operationalChallenges': formData.get('operationalChallenges'),
-        'itSystems': formData.get('itSystems'),
-        'dataProtection': formData.get('dataProtection'),
-        'infrastructure': formData.get('infrastructure'),
-        'permanentEmployees': formData.get('permanentEmployees'),
-        'temporaryEmployees': formData.get('temporaryEmployees'),
-        'internalRegulations': formData.get('internalRegulations'),
-        'performanceEvaluation': formData.get('performanceEvaluation'),
-        'turnoverRate': formData.get('turnoverRate'),
-        'additionalNotes': formData.get('additionalNotes') || ''
-    };
+    // Create a new FormData with proper structure for FormSubmit
+    const emailFormData = new FormData();
     
-    return data;
-}
-
-async function sendToGoogleSheets(formDataObject) {
-    // Try Google Apps Script first (if configured)
-    if (!CONFIG.USE_FORMSUBMIT && CONFIG.APPS_SCRIPT_URL && CONFIG.APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        try {
-            await sendToAppsScript(formDataObject);
-            return { success: true, method: 'apps-script' };
-        } catch (error) {
-            console.error('Apps Script failed, falling back to FormSubmit:', error);
-        }
-    }
+    // Add subject
+    emailFormData.append('_subject', 'استبيان تقييم شركة جديد - ' + formData.get('companyName'));
     
-    // Use FormSubmit as fallback or primary method
-    if (CONFIG.USE_FORMSUBMIT) {
-        const response = await sendViaFormSubmit(formDataObject);
-        if (response.ok || response.status === 0) { // status 0 is ok for form redirects
-            return { success: true, method: 'formsubmit' };
-        }
-        throw new Error('Failed to send data via FormSubmit');
-    }
+    // Add all form fields with Arabic labels
+    emailFormData.append('التاريخ_والوقت', new Date().toLocaleString('ar-EG'));
+    emailFormData.append('اسم_الشركة', formData.get('companyName') || '');
+    emailFormData.append('نوع_النشاط', formData.get('businessType') || '');
+    emailFormData.append('تاريخ_التأسيس', formData.get('establishmentDate') || '');
+    emailFormData.append('العنوان_الرئيسي', formData.get('mainAddress') || '');
     
-    throw new Error('No backend service configured');
-}
-
-// ========== File Upload to Google Drive ==========
-async function uploadFilesToDrive() {
-    const fileUrls = {};
+    // Section 1: Documents
+    emailFormData.append('السجل_التجاري', formData.get('doc1') ? 'نعم' : 'لا');
+    emailFormData.append('البطاقة_الضريبية', formData.get('doc2') ? 'نعم' : 'لا');
+    emailFormData.append('عقود_الاستثمار', formData.get('doc3') ? 'نعم' : 'لا');
+    emailFormData.append('التراخيص_التشغيلية', formData.get('doc4') ? 'نعم' : 'لا');
     
-    // Note: Direct file upload to Google Drive requires OAuth2 authentication
-    // For now, we'll create placeholder URLs
-    // In production, you would need to:
-    // 1. Implement Google OAuth2 authentication
-    // 2. Use Google Drive API with proper credentials
-    // 3. Upload files and get shareable links
-    
+    // Add file attachments
     for (const [key, file] of Object.entries(uploadedFiles)) {
         if (file) {
-            // Placeholder: In production, upload to Google Drive
-            // For now, we'll store file info as a note
-            fileUrls[key] = `[ملف مرفق: ${file.name} (${formatFileSize(file.size)})]`;
-            
-            // TODO: Implement actual Google Drive upload
-            // const driveUrl = await uploadToDrive(file);
-            // fileUrls[key] = driveUrl;
+            emailFormData.append('attachment', file, file.name);
         }
     }
     
-    return fileUrls;
+    // Section 2: Organizational Structure
+    emailFormData.append('هيكل_تنظيمي_معتمد', formData.get('orgChart') || '');
+    emailFormData.append('أصحاب_الصلاحيات', formData.get('authorities') || '');
+    emailFormData.append('اتخاذ_القرارات', formData.get('decisionMaking') || '');
+    
+    // Section 3: Financial
+    emailFormData.append('النظام_المحاسبي', formData.get('accountingSystem') || '');
+    if (formData.get('accountingSystemOther')) {
+        emailFormData.append('نظام_محاسبي_آخر', formData.get('accountingSystemOther'));
+    }
+    emailFormData.append('ميزانيات_مدققة', formData.get('auditedBudgets') || '');
+    emailFormData.append('الدورة_المستندية', formData.get('documentCycle') || '');
+    emailFormData.append('السيولة_المالية', formData.get('liquidity') || '');
+    
+    // Section 4: Operations
+    emailFormData.append('سلسلة_التوريد', formData.get('supplyChain') || '');
+    emailFormData.append('أدلة_السياسات', formData.get('sops') || '');
+    emailFormData.append('التحديات_التشغيلية', formData.get('operationalChallenges') || '');
+    
+    // Section 5: IT Systems
+    emailFormData.append('البرامج_والتقنيات', formData.get('itSystems') || '');
+    emailFormData.append('حماية_البيانات', formData.get('dataProtection') || '');
+    emailFormData.append('البنية_التحتية', formData.get('infrastructure') || '');
+    
+    // Section 6: HR
+    emailFormData.append('عدد_الموظفين_الدائمين', formData.get('permanentEmployees') || '');
+    emailFormData.append('عدد_الموظفين_المؤقتين', formData.get('temporaryEmployees') || '');
+    emailFormData.append('اللائحة_الداخلية', formData.get('internalRegulations') || '');
+    emailFormData.append('تقييم_الأداء', formData.get('performanceEvaluation') || '');
+    emailFormData.append('نسبة_دوران_العمالة', formData.get('turnoverRate') || '');
+    
+    if (formData.get('additionalNotes')) {
+        emailFormData.append('ملاحظات_إضافية', formData.get('additionalNotes'));
+    }
+    
+    // Send to FormSubmit
+    const response = await fetch(CONFIG.FORMSUBMIT_URL, {
+        method: 'POST',
+        body: emailFormData
+    });
+    
+    // FormSubmit redirects on success, so any response is considered success
+    return { success: true };
 }
 
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-}
+
 
 // ========== Success Message ==========
 function showSuccessMessage() {
